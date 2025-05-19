@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Past Courses</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .semester {
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .semester h2 {
+            color: #4CAF50;
+        }
+
+        .course-table {
+            width: 100%;
+            margin-top: 1rem;
+            border-collapse: collapse;
+        }
+
+        .course-table th,
+        .course-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .course-table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .course-table td {
+            color: #333;
+        }
+
+        .spi-cpi {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+
+        .spi-cpi span {
+            color: #333;
+        }
+
+        .back-btn {
+            display: block;
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 1.2rem;
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Past Courses</h1>
+        {% for semester in results %}
+        <div class="semester">
+            <h2>{{ semester.year }} - Semester {{ semester.semester }}</h2>
+            <table class="course-table">
+                <thead>
+                    <tr>
+                        <th>Course Name</th>
+                        <th>Course Type</th>
+                        <th>Credits</th>
+                        <th>Grade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in semester.courses %}
+                    <tr>
+                        <td>{{ course.name }}</td>
+                        <td>{{ course.course_type }}</td>
+                        <td>{{ course.credits }}</td>
+                        <td>{{ course.grade }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="spi-cpi">
+                <span>SPI: {{ semester.spi }}</span>
+                <span>CPI: {{ semester.cpi }}</span>
+            </div>
+        </div>
+        {% endfor %}
+        <a href="{{ url_for('student_dashboard') }}" class="back-btn">Back to Dashboard</a>
+    </div>
+</body>
+</html>

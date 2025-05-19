@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{ student.name }}'s Dashboard</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+
+      .container {
+        background-color: #fff;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 800px;
+      }
+
+      h1,
+      h2 {
+        color: #333;
+        text-align: center;
+      }
+
+      footer {
+        background-color: #333;
+        color: white;
+        text-align: center;
+        padding: 10px 0;
+        position: fixed;
+        width: 100%;
+        bottom: 0;
+      }
+
+      .back-btn {
+        display: block;
+        margin: 20px auto;
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        text-align: center;
+        border-radius: 4px;
+        text-decoration: none;
+      }
+
+      .back-btn:hover {
+        background-color: #45a049;
+      }
+
+      .enroll-btn {
+        display: block;
+        margin: 20px auto;
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        text-align: center;
+        border-radius: 4px;
+        text-decoration: none;
+      }
+
+      .enroll-btn:hover {
+        background-color: #45a049;
+      }
+
+      .past-courses-btn {
+        display: block;
+        margin: 20px auto;
+        padding: 10px 20px;
+        background-color: #2196f3;
+        color: white;
+        text-align: center;
+        border-radius: 4px;
+        text-decoration: none;
+      }
+
+      .past-courses-btn:hover {
+        background-color: #1976d2;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>{{ student.name }}'s Dashboard</h1>
+      <p>Student ID: {{ student.student_id }}</p>
+      <a href="{{ url_for('logout') }}" style="float: right">Logout</a>
+      <h2>Current Academic Session</h2>
+      <p>Year: {{ current_year }}</p>
+      <p>Semester: {{ current_semester }}</p>
+
+      <h2>Credits Summary</h2>
+      <table border="1" style="margin-top: 10px; border-collapse: collapse; width: 100%;text-align: center;">
+        <tr>
+          <th>Type</th>
+          <th>Earned</th>
+          <th>Required</th>
+        </tr>
+        <tr>
+          <td>IC</td>
+          <td>{{ earned_credits['IC'] }}</td>
+          <td>{{ required_credits['IC'] }}</td>
+        </tr>
+        <tr>
+          <td>DE</td>
+          <td>{{ earned_credits['DE'] }}</td>
+          <td>{{ required_credits['DE'] }}</td>
+        </tr>
+        <tr>
+          <td>OE</td>
+          <td>{{ earned_credits['OE'] }}</td>
+          <td>{{ required_credits['OE'] }}</td>
+        </tr>
+        <tr>
+          <td><strong>Total</strong></td>
+          <td>{{ total_credits }}</td>
+          <td>{{ required_credits['IC'] + required_credits['DE'] + required_credits['OE'] }}</td>
+        </tr>
+      </table>
+      
+
+      <h2>Courses Enrolled</h2>
+      <table border="1" style="margin-top: 10px; border-collapse: collapse; width: 100%;text-align: center;">
+        <thead>
+          <tr>
+            <th>Course Name</th>
+            <th>Course Type</th>
+            <th>Credits</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for course in current_courses %}
+          <tr>
+            <td>{{ course.name }}</td>
+            <td>{{ course.course_type }}</td>
+            <td>{{ course.credits }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <h3>Enrollment for Current Semester</h3>
+      {% if enrollment_open %}
+      <form method="POST">
+        <label for="course_id">Select Course:</label>
+        <select name="course_id" id="course_id" required>
+          {% for course in available_courses %}
+          <option value="{{ course.course_id }}">
+            {{ course.name }} ({{ course.credits }} credits - {{
+            course.course_type }})
+          </option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="enroll-btn">Enroll</button>
+      </form>
+      {% else %}
+      <p>Enrollment is currently closed.</p>
+      {% endif %}
+
+      <a href="{{ url_for('past_courses') }}" class="past-courses-btn">View Grade Sheet</a>
+    </div>
+  </body>
+</html>

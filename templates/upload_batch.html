@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload New Batch</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fc;
+        }
+
+        .header {
+            padding: 20px;
+            background-color: #2196F3;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .header a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .student-input {
+            margin-bottom: 15px;
+            padding: 10px;
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .student-input:focus {
+            border-color: #2196F3;
+            outline: none;
+        }
+
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        .submit-button {
+            background-color: #2196F3;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-button:hover {
+            background-color: #1976d2;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Upload Grades</h1>
+        <a href="{{ url_for('admin_dashboard') }}">Back to Dashboard</a>
+    </div>
+
+    <div class="container">
+        <p><strong>Current Year:</strong> {{ year }}</p>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% else %}
+            <form method="POST">
+                <div id="student-fields">
+                    <label for="student_names"><strong>Student Name:</strong></label>
+                    <input type="text" name="student_names" required class="student-input">
+                </div>
+
+                <button type="button" onclick="addStudent()" class="button">
+                    Add Another Student
+                </button>
+
+                <input type="submit" value="Submit Batch" class="submit-button">
+            </form>
+        {% endif %}
+    </div>
+
+    <script>
+        function addStudent() {
+            const container = document.getElementById('student-fields');
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.name = 'student_names';
+            input.required = true;
+            input.classList.add('student-input');
+
+            container.appendChild(document.createElement('br'));
+            container.appendChild(input);
+            container.appendChild(document.createElement('br'));
+        }
+    </script>
+</body>
+</html>

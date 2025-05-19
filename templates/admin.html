@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            color: #2c3e50;
+        }
+
+        a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: white;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+
+        .card h2 {
+            margin-top: 0;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-blue {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-purple {
+            background-color: #9C27B0;
+            color: white;
+        }
+
+        .btn-red {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .btn-orange {
+            background-color: orange;
+            color: white;
+        }
+
+        .flash-success {
+            color: green;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .flash-error {
+            color: red;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        select {
+            padding: 6px;
+            border-radius: 4px;
+        }
+
+        .logout {
+            float: right;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="logout">
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+
+    <h1>Welcome, Admin</h1>
+    <h2>Current Semester: {{ semester }} | Year: {{ year }}</h2>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="flash-{{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    {% if error %}
+    <p class="flash-error">{{ error }}</p>
+    {% endif %}
+
+    <!-- Upload Batch -->
+    <div class="card">
+        <h2>Add New Batch</h2>
+        <form method="GET" action="{{ url_for('upload_batch') }}">
+            <button type="submit" class="btn-blue">Upload New Batch</button>
+        </form>
+    </div>
+
+    <!-- Enrollment Status -->
+    <div class="card">
+        <h2>Enrollment Status</h2>
+        <form method="POST" action="{{ url_for('toggle_enrollment') }}">
+            <p>
+                Enrollment for <strong>{{ year }}</strong>, Semester <strong>{{ semester }}</strong> is:
+                <span style="color: {{ 'green' if is_enrollment_open else 'red' }};">
+                    <strong>{{ 'Open' if is_enrollment_open else 'Closed' }}</strong>
+                </span>
+            </p>
+            {% if is_enrollment_open %}
+            <button type="submit" name="action" value="close" class="btn-red">Close Enrollment</button>
+            {% else %}
+            <p><em>Enrollment is currently closed. It will open automatically after grades are submitted.</em></p>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Upload Course -->
+    <div class="card">
+        <h2>Add New Course</h2>
+        <form method="POST" action="{{ url_for('upload_course') }}">
+            Name: <input type="text" name="name" required>
+            Credits: <input type="number" name="credits" required>
+            Type:
+            <select name="course_type" required>
+                <option value="IC">IC</option>
+                <option value="DE">DE</option>
+                <option value="OE">OE</option>
+            </select>
+            <button type="submit" class="btn-blue">Add Course</button>
+        </form>
+    </div>
+
+    <!-- Force Advance or Upload Grades -->
+    <div class="card">
+        {% if not is_enrollment_open and total_enrollments == 0 %}
+            <h2>Advance Semester (No Enrollments)</h2>
+            <p style="color: orange;"><strong>No enrollments found for current semester. You can manually advance.</strong></p>
+            <form method="POST" action="{{ url_for('force_advance') }}">
+                <button type="submit" class="btn-orange">Force Advance Semester</button>
+            </form>
+        {% else %}
+            <h2>Upload Grades</h2>
+            <a href="{{ url_for('upload_grades') }}">
+                <button class="btn-purple">Upload Grades</button>
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- Student List -->
+    <div class="card">
+        <h2>All Students</h2>
+        <form method="POST" action="{{ url_for('admin_dashboard') }}">
+            <label for="batch_filter">Filter by Batch Year:</label>
+            <select name="batch_filter" onchange="this.form.submit()">
+                <option value="">All Years</option>
+                {% for by in batch_years %}
+                <option value="{{ by.batch_year }}" {% if selected_year==by.batch_year|string %}selected{% endif %}>
+                    {{ by.batch_year }}
+                </option>
+                {% endfor %}
+            </select>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Name</th>
+                    <th>Batch Year</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td>{{ student.student_id }}</td>
+                    <td>{{ student.name }}</td>
+                    <td>{{ student.batch_id }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Course List -->
+    <div class="card">
+        <h2>All Courses</h2>
+        <form method="POST" action="{{ url_for('admin_dashboard') }}">
+            <label for="course_filter">Filter by Course Type:</label>
+            <select name="course_filter" onchange="this.form.submit()">
+                <option value="">All Types</option>
+                <option value="IC" {% if selected_type=='IC' %}selected{% endif %}>IC</option>
+                <option value="DE" {% if selected_type=='DE' %}selected{% endif %}>DE</option>
+                <option value="OE" {% if selected_type=='OE' %}selected{% endif %}>OE</option>
+            </select>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Course ID</th>
+                    <th>Name</th>
+                    <th>Credits</th>
+                    <th>Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course in courses %}
+                <tr>
+                    <td>{{ course.course_id }}</td>
+                    <td>{{ course.name }}</td>
+                    <td>{{ course.credits }}</td>
+                    <td>{{ course.course_type }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>
